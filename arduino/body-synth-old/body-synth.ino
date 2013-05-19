@@ -86,11 +86,7 @@ void setup(){
   adxl.setInterrupt( ADXL345_INT_INACTIVITY_BIT, 1);
 }
 
-const float alpha = 0.5;
- 
-double fXg = 0;
-double fYg = 0;
-double fZg = 0;
+
 
 void loop(){
 
@@ -98,42 +94,69 @@ void loop(){
   int x,y,z;  
   adxl.readXYZ(&x, &y, &z); //read the accelerometer values and store them in variables  x,y,z
   // Output x,y,z values 
-  /*
   Serial.print("values of X , Y , Z: ");
   Serial.print(x);
   Serial.print(" , ");
   Serial.print(y);
   Serial.print(" , ");
   Serial.println(z);
-*/
-  double pitch, roll, Xg, Yg, Zg;
   
+
   double xyz[3];
+  double ax,ay,az;
   adxl.getAcceleration(xyz);
-  Xg = xyz[0];
-  Yg = xyz[1];
-  Zg = xyz[2];  
+  ax = xyz[0];
+  ay = xyz[1];
+  az = xyz[2];
+  Serial.print("X=");
+  Serial.print(ax);
+  Serial.println(" g");
+  Serial.print("Y=");
+  Serial.print(ay);
+  Serial.println(" g");
+  Serial.print("Z=");
+  Serial.println(az);
+  Serial.println(" g");
+  Serial.println("**********************");
+  delay(4000);
+  /*
 
-  //Low Pass Filter
-  fXg = Xg * alpha + (fXg * (1.0 - alpha));
-  fYg = Yg * alpha + (fYg * (1.0 - alpha));
-  fZg = Zg * alpha + (fZg * (1.0 - alpha));
-
-  //Roll & Pitch Equations
-  roll  = (atan2(-fYg, fZg)*180.0)/M_PI;
-  pitch = (atan2(fXg, sqrt(fYg*fYg + fZg*fZg))*180.0)/M_PI;
-/*
-  Serial.print(pitch);
-  Serial.print(":");
-  Serial.println(roll);
-*/
-  Serial.print(x);Serial.print(":");
-  Serial.print(y);Serial.print(":");
-  Serial.println(z);
-  
-
-  delay(20);
+   //Fun Stuff!    
+   //read interrupts source and look for triggerd actions
+   
+   //getInterruptSource clears all triggered actions after returning value
+   //so do not call again until you need to recheck for triggered actions
+   byte interrupts = adxl.getInterruptSource();
+   
+   // freefall
+   if(adxl.triggered(interrupts, ADXL345_FREE_FALL)){
+   Serial.println("freefall");
+   //add code here to do when freefall is sensed
+   } 
+   
+   //inactivity
+   if(adxl.triggered(interrupts, ADXL345_INACTIVITY)){
+   Serial.println("inactivity");
+   //add code here to do when inactivity is sensed
+   }
+   
+   //activity
+   if(adxl.triggered(interrupts, ADXL345_ACTIVITY)){
+   Serial.println("activity"); 
+   //add code here to do when activity is sensed
+   }
+   
+   //double tap
+   if(adxl.triggered(interrupts, ADXL345_DOUBLE_TAP)){
+   Serial.println("double tap");
+   //add code here to do when a 2X tap is sensed
+   }
+   
+   //tap
+   if(adxl.triggered(interrupts, ADXL345_SINGLE_TAP)){
+   Serial.println("tap");
+   //add code here to do when a tap is sensed
+   } */
 
 }
-
 
