@@ -1,7 +1,7 @@
 /*****************************************************************************/
 //	Function:    Get the accelemeter of X/Y/Z axis and print out on the 
 //					serial monitor.
-//  Hardware:    3-Axis Digital Accelerometer(��16g)
+//  Hardware:    3-Axis Digital Accelerometer(16g)
 //	Arduino IDE: Arduino-1.0
 //	Author:	 Frankie.Chu		
 //	Date: 	 Jan 11,2013
@@ -26,9 +26,11 @@
 
 #include <Wire.h>
 #include <ADXL345.h>
+#include <MMA7660.h>
 
 
 ADXL345 adxl; //variable adxl is an instance of the ADXL345 library
+MMA7660 mma;
 
 //The minimum and maximum values that came from
 //the accelerometer while standing still
@@ -37,7 +39,7 @@ int minVal = -256;
 int maxVal = 256;
 
 void setup(){
-  Serial.begin(9600);
+  Serial.begin(115200);
   adxl.powerOn();
 
   //set activity/ inactivity thresholds (0-255)
@@ -84,6 +86,8 @@ void setup(){
   adxl.setInterrupt( ADXL345_INT_FREE_FALL_BIT,  1);
   adxl.setInterrupt( ADXL345_INT_ACTIVITY_BIT,   1);
   adxl.setInterrupt( ADXL345_INT_INACTIVITY_BIT, 1);
+  
+  mma.init();  
 }
 
 const float alpha = 0.5;
@@ -127,12 +131,28 @@ void loop(){
   Serial.print(":");
   Serial.println(roll);
 */
-  Serial.print(x);Serial.print(":");
-  Serial.print(y);Serial.print(":");
-  Serial.println(z);
+  Serial.print(xyz[0]);Serial.print(":");
+  Serial.print(xyz[1]);Serial.print(":");
+  Serial.print(xyz[2]);Serial.print(";");
   
 
-  delay(20);
+  // MMA
+  
+  int8_t x2;
+  int8_t y2;
+  int8_t z2;
+  float ax,ay,az;
+  //mma.getXYZ(&x2,&y2,&z2);
+  mma.getAcceleration(&ax,&ay,&az);
+
+  Serial.print(ax);Serial.print(":");
+  Serial.print(ay);Serial.print(":");
+  Serial.println(az);
+
+  
+
+
+  delay(80);
 
 }
 

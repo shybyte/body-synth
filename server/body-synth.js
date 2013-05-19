@@ -1,5 +1,5 @@
 
-var midi = require("midi")
+var midi = require('midi')
 var output = new midi.output();
 output.openPort(0);
 var MidiInstrument = (function () {
@@ -53,4 +53,29 @@ var MidiSequencer = (function () {
     return MidiSequencer;
 })();
 exports.MidiSequencer = MidiSequencer;
+var Accelerometer = (function () {
+    function Accelerometer() {
+        this.alpha = 0.5;
+        this.fg = [
+            0, 
+            0, 
+            0
+        ];
+    }
+    Accelerometer.prototype.updateFromAcceleration = function (acc) {
+        var _this = this;
+        var fg = this.fg;
+        fg.forEach(function (g, i) {
+            fg[i] = acc[i] * _this.alpha + (g * (1.0 - _this.alpha));
+        });
+        var fXg = fg[0], fYg = fg[1], fZg = fg[2];
+        this.roll = (Math.atan2(-fYg, fZg) * 180.0) / Math.PI;
+        this.pitch = (Math.atan2(fXg, Math.sqrt(fYg * fYg + fZg * fZg)) * 180.0) / Math.PI;
+    };
+    Accelerometer.prototype.updateFromInputData = function (inputData) {
+        this.updateFromAcceleration(inputData.split(':').map(parseFloat));
+    };
+    return Accelerometer;
+})();
+exports.Accelerometer = Accelerometer;
 //@ sourceMappingURL=body-synth.js.map

@@ -1,8 +1,8 @@
 ///<reference path='./libs/node.d.ts' />
 ///<reference path='./libs/midi.d.ts' />
 
-import http = module("http");
-import midi = module("midi");
+import http = module('http');
+import midi = module('midi');
 
 var output = new midi.output();
 output.openPort(0);
@@ -50,6 +50,30 @@ export class MidiSequencer implements Instrument {
     this.velocity = velocity;
     this.timeInMs = velocity;
   }
+}
+
+
+export class Accelerometer {
+  alpha:number = 0.5;
+  fg:number[] = [0,0,0]; // filtered Acceleration values
+  roll:number;
+  pitch:number;
+
+  updateFromAcceleration(acc:number[]) {
+    var fg = this.fg;
+    fg.forEach((g, i) => {
+      fg[i] = acc[i] * this.alpha + (g * (1.0 - this.alpha));
+    });
+
+    var fXg = fg[0], fYg = fg[1], fZg = fg[2];
+    this.roll = (Math.atan2(-fYg, fZg) * 180.0) / Math.PI;
+    this.pitch = (Math.atan2(fXg, Math.sqrt(fYg * fYg + fZg * fZg)) * 180.0) / Math.PI;
+  }
+
+  updateFromInputData(inputData:string) {
+    this.updateFromAcceleration(inputData.split(':').map(parseFloat));
+  }
+
 }
 
 
