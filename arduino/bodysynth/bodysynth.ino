@@ -39,7 +39,7 @@ int minVal = -256;
 int maxVal = 256;
 
 void setup(){
-  Serial.begin(115200);
+  Serial.begin(9600);
   adxl.powerOn();
 
   //set activity/ inactivity thresholds (0-255)
@@ -99,8 +99,11 @@ double fZg = 0;
 void loop(){
 
   //Boring accelerometer stuff   
-  int x,y,z;  
+  int x,y,z;
+/*  
   adxl.readXYZ(&x, &y, &z); //read the accelerometer values and store them in variables  x,y,z
+*/  
+  
   // Output x,y,z values 
   /*
   Serial.print("values of X , Y , Z: ");
@@ -114,6 +117,7 @@ void loop(){
   
   double xyz[3];
   adxl.getAcceleration(xyz);
+/*  
   Xg = xyz[0];
   Yg = xyz[1];
   Zg = xyz[2];  
@@ -126,21 +130,20 @@ void loop(){
   //Roll & Pitch Equations
   roll  = (atan2(-fYg, fZg)*180.0)/M_PI;
   pitch = (atan2(fXg, sqrt(fYg*fYg + fZg*fZg))*180.0)/M_PI;
+*/
 /*
   Serial.print(pitch);
   Serial.print(":");
   Serial.println(roll);
 */
+
+
   Serial.print(xyz[0]);Serial.print(":");
   Serial.print(xyz[1]);Serial.print(":");
   Serial.print(xyz[2]);Serial.print(";");
   
 
   // MMA
-  
-  int8_t x2;
-  int8_t y2;
-  int8_t z2;
   float ax,ay,az;
   //mma.getXYZ(&x2,&y2,&z2);
   mma.getAcceleration(&ax,&ay,&az);
@@ -152,7 +155,7 @@ void loop(){
   
 
 
-  delay(80);
+  delay(20);
 
 }
 

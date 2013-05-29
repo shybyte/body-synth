@@ -21,7 +21,7 @@ var instSolo = new bs.MidiSequencer(3, [12], 250);
 io.set('log level', 1); // disables debugging. this is optional. you may remove it if desired.
 
 var sp = new SerialPort(portName, {
-  baudRate: 115200, // this is synced to what was set for the Arduino Code
+  baudRate: 9600, // this is synced to what was set for the Arduino Code
   dataBits: 8, // this is the default for Arduino serial communication
   parity: 'none', // this is the default for Arduino serial communication
   stopBits: 1, // this is the default for Arduino serial communication
