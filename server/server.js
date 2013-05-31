@@ -12,7 +12,9 @@ function serveStaticFile(request, response) {
 }
 
 var instruments = [
+  new bs.MidiInstrument(0),
   new bs.MidiSequencer(0, [0, 12, 24, 19], 250),
+  new bs.MidiInstrument(0),
   new bs.MidiSequencer(2, [0, 19, 24, 12], 250),
   new bs.MidiSequencer(3, [12], 250)
 ];
@@ -21,12 +23,12 @@ io.set('log level', 1); // disables debugging. this is optional. you may remove 
 
 io.sockets.on('connection', function (socket) {
   socket.on('play', function (msg) {
-    console.log("Play",msg);
-    instruments[msg.instrument].play(msg.note, 90);
+    console.log("Play", msg);
+    instruments[msg.instrument].play(msg.note, 70, msg.timeInMs);
   });
   socket.on('stop', function (msg) {
-    instruments[msg.instrument].play(msg.note, 0);
-    console.log("Stop",msg);
+    console.log("Stop", msg);
+    instruments[msg.instrument].stop(msg.note);
   });
   socket.on('disconnect', function () {
     console.log('disconnected');

@@ -14,25 +14,48 @@ function getDPadPos(gamepadButtons:number[]):number {
   return DPAD_POS_BY_BUTTONS[dpadButtons.join('')];
 }
 
-var lastDPadPos;
+/**
+ * 0 1 2 3 4 5 6 7 8 9 10 11 12
+ * a b h c   d   e f   g     a
+ */
+var scale = [0, 2, 3, 5, 7, 8, 10, 12 ];
+var scaleSolo = [0, 2, 3, 5, 7, 8, 10, 12];
+
+var playSeq = false;
+var currentNote;
 function onGamepadInput(gamepad, gamepadID) {
   var dpadPos = getDPadPos(gamepad.buttons);
 
-  if (lastDPadPos != null && dpadPos != lastDPadPos) {
-    socket.emit('stop', {
-      instrument: 0,
-      note: 40 + lastDPadPos
-    });
+  if (gamepad.buttons[gamepadSupport.BUTTON.X]) {
+    if (playSeq) {
+      playSeq = false;
+      socket.emit('stop', {
+        instrument: 1
+      });
+    } else {
+      playSeq = true;
+    }
   }
+
+  var inst = playSeq ? 1 : 0
 
   if (dpadPos != null) {
+    currentNote = 40 + scale[dpadPos];
     socket.emit('play', {
-      instrument: 0,
-      note: 40 + dpadPos
+      instrument: inst,
+      note: currentNote,
+      timeInMs: 400
     });
   }
 
-  lastDPadPos = dpadPos;
+  if (!playSeq && currentNote && gamepad.buttons[gamepadSupport.BUTTON.LEFT_SHOULDER_TOP]) {
+    socket.emit('play', {
+      instrument: 0,
+      note: currentNote + 7,
+      timeInMs: 400
+    });
+  }
+
 }
 
 
@@ -42,7 +65,7 @@ var tester = {
   },
   onInput: onGamepadInput,
   updateButton: function (button, buttonID, buttonName) {
-    //console.log(button, buttonID, buttonName);
+    console.log(button, buttonID, buttonName);
   },
   updateAxis: function (value, gamepadId, labelId, stickId, horizontal) {
     //console.log(value, gamepadId, labelId, stickId, horizontal);

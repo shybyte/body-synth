@@ -24,6 +24,11 @@ export class MidiInstrument implements Instrument {
       }, 1000);
     }, timeInMs);
   }
+
+  stop(note:number) {
+    output.sendMessage([0x90 + this.channel, note, 0]);
+  }
+
 }
 
 
@@ -40,22 +45,35 @@ export class MidiSequencer implements Instrument {
   }
 
   play(baseNote:number, velocity?:number = 90, timeInMs?:number = 100) {
-    if (!this.interval) {
-      this.interval = setInterval(() => {
-        this.inst.play(this.seq[this.pos] + this.baseNote, this.velocity, this.timeInMs);
-        this.pos = (this.pos + 1) % this.seq.length;
-      }, this.speed);
-    }
     this.baseNote = baseNote;
     this.velocity = velocity;
     this.timeInMs = velocity;
+
+    var playInternal = () => {
+      this.inst.play(this.seq[this.pos] + this.baseNote, this.velocity*1.2, this.timeInMs);
+      this.pos = (this.pos + 1) % this.seq.length;
+    };
+
+    if (!this.interval) {
+      this.interval = setInterval(playInternal, this.speed);
+      playInternal();
+    }
   }
+
+  stop(note?:number) {
+    if (this.interval) {
+      clearInterval(this.interval);
+      this.interval = null;
+    }
+    this.pos = 0;
+  }
+
 }
 
 
 export class Accelerometer {
   alpha:number = 0.5;
-  fg:number[] = [0,0,0]; // filtered Acceleration values
+  fg:number[] = [0, 0, 0]; // filtered Acceleration values
   roll:number;
   pitch:number;
 

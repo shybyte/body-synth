@@ -23,7 +23,9 @@ var gamepadSupport = {
       BOTTOM: 13,
       LEFT: 14,
       RIGHT: 15
-    }
+    },
+    X: 2,
+    LEFT_SHOULDER_TOP: 4
   },
 
   // A number of typical buttons recognized by Gamepad API and mapped to

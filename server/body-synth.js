@@ -25,6 +25,13 @@ var MidiInstrument = (function () {
             }, 1000);
         }, timeInMs);
     };
+    MidiInstrument.prototype.stop = function (note) {
+        output.sendMessage([
+            0x90 + this.channel, 
+            note, 
+            0
+        ]);
+    };
     return MidiInstrument;
 })();
 exports.MidiInstrument = MidiInstrument;
@@ -40,15 +47,24 @@ var MidiSequencer = (function () {
         if (typeof velocity === "undefined") { velocity = 90; }
         if (typeof timeInMs === "undefined") { timeInMs = 100; }
         var _this = this;
-        if(!this.interval) {
-            this.interval = setInterval(function () {
-                _this.inst.play(_this.seq[_this.pos] + _this.baseNote, _this.velocity, _this.timeInMs);
-                _this.pos = (_this.pos + 1) % _this.seq.length;
-            }, this.speed);
-        }
         this.baseNote = baseNote;
         this.velocity = velocity;
         this.timeInMs = velocity;
+        var playInternal = function () {
+            _this.inst.play(_this.seq[_this.pos] + _this.baseNote, _this.velocity * 1.2, _this.timeInMs);
+            _this.pos = (_this.pos + 1) % _this.seq.length;
+        };
+        if(!this.interval) {
+            this.interval = setInterval(playInternal, this.speed);
+            playInternal();
+        }
+    };
+    MidiSequencer.prototype.stop = function (note) {
+        if(this.interval) {
+            clearInterval(this.interval);
+            this.interval = null;
+        }
+        this.pos = 0;
     };
     return MidiSequencer;
 })();
