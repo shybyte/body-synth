@@ -1,68 +1,15 @@
 <html>
 </head>
-<link type="text/css" href="libs/jquery-ui/css/ui-lightness/jquery-ui-1.9.2.custom.css" rel="Stylesheet"/>
-
-<script type="text/javascript" src="//localhost:8000/socket.io/socket.io.js"></script>
-<script type="text/javascript" src="libs/jquery.js"></script>
-<script type="text/javascript" src="libs/jquery-ui/js/jquery-ui-1.9.2.custom.js"></script>
-<script type="text/javascript" src="libs/flot/jquery.flot.js"></script>
-
-<script>
-    $(document).ready(function () {
-        var totalPoints = 300;
-        var timePerDataPoint = 0.02;
-        var dataSeriesList = [createDataSeries(), createDataSeries()]; // pitch and roll
-
-        function createDataSeries() {
-            var dataSeries = [];
-            for (var i = 0; i < totalPoints; ++i) {
-                dataSeries.push([i * timePerDataPoint, 0]);
-            }
-            return dataSeries;
-        }
-
-        var plot = $.plot($("#placeholder"), dataSeriesList, {
-            yaxis: { min: -100, max: 100 }
-        });
-
-        var socket = io.connect();
-        socket.on('connect', function () {
-            socket.on('message', function (msg) {
-                var pitchAndRoll = msg.split(':').map(parseFloat);
-
-                pitchAndRoll.forEach(function (val, i) {
-                    $('#sensor_value' + i).html(val);
-                    dataSeriesList[i].push([totalPoints, val]);
-                    dataSeriesList[i].shift();
-                    for (j = 0; j < totalPoints; j++) {
-                        dataSeriesList[i][j][0] = j * timePerDataPoint;
-                    }
-                    $('#progressbar' + i).progressbar({value: val});
-                });
-
-                plot.setData(dataSeriesList);
-                plot.draw();
-            });
-        });
-    });
-</script>
+<title>Gamepad Synth</title>
 </head>
 <body>
-<div role="main">
-    Pitch: <span id="sensor_value0"></span><br/>
 
-    <div id="progressbar0" style="width:600px;height:50px;"></div>
-    <br/>
+<h1>Gamepad Synth</h1>
 
-    Roll: <span id="sensor_value1"></span><br/>
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script type="text/javascript" src="libs/jquery.js"></script>
+<script type="text/javascript" src="libs/gamepad.js"></script>
+<script type="text/javascript" src="js/gamepad-synth.js"></script>
 
-    <div id="progressbar1" style="width:600px;height:50px;"></div>
-    <br/>
-
-    Graph:<br/>
-
-    <div id="placeholder" style="width:600px;height:300px;"></div>
-    <br/>
-</div>
 </body>
 </html>

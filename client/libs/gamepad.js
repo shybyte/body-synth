@@ -17,6 +17,15 @@
  */
  
 var gamepadSupport = {
+  BUTTON: {
+    DPAD: {
+      TOP: 12,
+      BOTTOM: 13,
+      LEFT: 14,
+      RIGHT: 15
+    }
+  },
+
   // A number of typical buttons recognized by Gamepad API and mapped to
   // standard controls. Any extraneous buttons will have larger indexes.
   TYPICAL_BUTTON_COUNT: 16,
@@ -179,6 +188,7 @@ var gamepadSupport = {
       }
       gamepadSupport.prevTimestamps[i] = gamepad.timestamp;
 
+      tester.onInput(gamepadSupport.gamepads[i],i);
       gamepadSupport.updateDisplay(i);
     }
   },

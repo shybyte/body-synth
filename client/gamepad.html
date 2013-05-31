@@ -4,23 +4,10 @@
     <title>Gamepad Test</title>
 </head>
 <body>
+<h1>Gamepad</h1>
 
+<button onclick="test();">Test</button>
 <script type="text/javascript" src="libs/gamepad.js"></script>
-<script type="text/javascript">
-
-    tester = {
-        updateGamepads: function (gamepads) {
-            console.log(gamepads);
-        },
-        updateButton: function (button,buttonID,buttonName) {
-            console.log(button,buttonID,buttonName);
-        },
-        updateAxis: function(value, gamepadId, labelId, stickId, horizontal) {
-            console.log(value, gamepadId, labelId, stickId, horizontal);
-        }
-    }
-
-    gamepadSupport.init();
-</script>
+<script type="text/javascript" src="js/gamepad-synth.js"></script>
 </body>
 </html>
