@@ -39,6 +39,7 @@ var scaleSolo = [
 ];
 var playSeq = false;
 var currentNote;
+var currentNoteSolo;
 function onGamepadInput(gamepad, gamepadID) {
     var dpadPos = getDPadPos(gamepad.buttons);
     if(gamepad.buttons[gamepadSupport.BUTTON.X]) {
@@ -57,6 +58,7 @@ function onGamepadInput(gamepad, gamepadID) {
         socket.emit('play', {
             instrument: inst,
             note: currentNote,
+            velocity: 60,
             timeInMs: 400
         });
     }
@@ -64,8 +66,25 @@ function onGamepadInput(gamepad, gamepadID) {
         socket.emit('play', {
             instrument: 0,
             note: currentNote + 7,
+            velocity: 30,
             timeInMs: 400
         });
+    }
+    var ux = gamepad.axes[2];
+    var uy = -gamepad.axes[3];
+    var ul = Math.sqrt(ux * ux + uy * uy);
+    if(ul > 0.5) {
+        var angle = uy > 0 ? Math.acos(ux / ul) : Math.PI * 2 - Math.acos(ux / ul);
+        var stick2Pos = Math.round((Math.PI * 5 - angle) % (Math.PI * 2) / (2 * Math.PI) * 8) % 8;
+        console.log(angle, stick2Pos);
+        currentNoteSolo = 52 + scale[stick2Pos];
+        socket.emit('play', {
+            instrument: 2,
+            note: currentNoteSolo,
+            velocity: 50,
+            timeInMs: 1000
+        });
+    } else {
     }
 }
 var tester = {
@@ -74,7 +93,6 @@ var tester = {
     },
     onInput: onGamepadInput,
     updateButton: function (button, buttonID, buttonName) {
-        console.log(button, buttonID, buttonName);
     },
     updateAxis: function (value, gamepadId, labelId, stickId, horizontal) {
     }

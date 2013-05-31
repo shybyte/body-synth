@@ -24,7 +24,7 @@ io.set('log level', 1); // disables debugging. this is optional. you may remove 
 io.sockets.on('connection', function (socket) {
   socket.on('play', function (msg) {
     console.log("Play", msg);
-    instruments[msg.instrument].play(msg.note, 70, msg.timeInMs);
+    instruments[msg.instrument].play(msg.note, msg.velocity || 70, msg.timeInMs);
   });
   socket.on('stop', function (msg) {
     console.log("Stop", msg);
