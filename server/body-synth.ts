@@ -9,6 +9,7 @@ output.openPort(0);
 
 export interface Instrument {
   play(note:number, velocity:number, timeInMs:number);
+  changeController(controller:number, value:number);
 }
 
 export class MidiInstrument implements Instrument {
@@ -25,6 +26,10 @@ export class MidiInstrument implements Instrument {
         }, 1000);
       }, timeInMs);
     }
+  }
+
+  changeController(controller:number, value:number) {
+    output.sendMessage([0xB0 + this.channel, controller, value]);
   }
 
   stop(note:number) {
@@ -60,6 +65,10 @@ export class MidiSequencer implements Instrument {
       this.interval = setInterval(playInternal, this.speed);
       playInternal();
     }
+  }
+
+  changeController(controller:number, value:number) {
+    this.inst.changeController(controller, value);
   }
 
   stop(note?:number) {

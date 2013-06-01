@@ -74,6 +74,15 @@ class Stick {
       stopNote(instrument, this.currentShoulderNote);
       this.currentShoulderNote = null;
     }
+
+    var shoulderButtonBottom = gamepad.buttons[gamepadSupport.BUTTON.LEFT_SHOULDER_TOP + this.stickNumber + 2];
+    console.log(shoulderButtonBottom);
+    socket.emit('changeSynthParameter', {
+      instrument: instrument,
+      parameter: 74,
+      value: 127-shoulderButtonBottom*120
+    });
+
   }
 }
 

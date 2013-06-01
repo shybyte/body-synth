@@ -27,6 +27,13 @@ var MidiInstrument = (function () {
             }, timeInMs);
         }
     };
+    MidiInstrument.prototype.changeController = function (controller, value) {
+        output.sendMessage([
+            0xB0 + this.channel, 
+            controller, 
+            value
+        ]);
+    };
     MidiInstrument.prototype.stop = function (note) {
         output.sendMessage([
             0x90 + this.channel, 
@@ -60,6 +67,9 @@ var MidiSequencer = (function () {
             this.interval = setInterval(playInternal, this.speed);
             playInternal();
         }
+    };
+    MidiSequencer.prototype.changeController = function (controller, value) {
+        this.inst.changeController(controller, value);
     };
     MidiSequencer.prototype.stop = function (note) {
         if(this.interval) {

@@ -26,6 +26,10 @@ io.sockets.on('connection', function (socket) {
     console.log("Play", msg);
     instruments[msg.instrument].play(msg.note, msg.velocity || 70, msg.timeInMs);
   });
+  socket.on('changeSynthParameter', function (msg) {
+    console.log("changeSynthParameter", msg);
+    instruments[msg.instrument].changeController(msg.parameter,msg.value)
+  });
   socket.on('stop', function (msg) {
     console.log("Stop", msg);
     instruments[msg.instrument].stop(msg.note);
