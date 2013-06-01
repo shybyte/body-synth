@@ -18,11 +18,13 @@ export class MidiInstrument implements Instrument {
   play(note:number, velocity?:number = 90, timeInMs?:number = 1000) {
     output.sendMessage([0x90 + this.channel, note, velocity]);
     //console.log('Play ' + note);
-    setTimeout(() => {
-      output.sendMessage([0x90 + this.channel, note, 0]);
-      setTimeout(function () {
-      }, 1000);
-    }, timeInMs);
+    if (timeInMs > 0) {
+      setTimeout(() => {
+        output.sendMessage([0x90 + this.channel, note, 0]);
+        setTimeout(function () {
+        }, 1000);
+      }, timeInMs);
+    }
   }
 
   stop(note:number) {
@@ -50,7 +52,7 @@ export class MidiSequencer implements Instrument {
     this.timeInMs = velocity;
 
     var playInternal = () => {
-      this.inst.play(this.seq[this.pos] + this.baseNote, this.velocity*1.2, this.timeInMs);
+      this.inst.play(this.seq[this.pos] + this.baseNote, this.velocity * 1.2, this.timeInMs);
       this.pos = (this.pos + 1) % this.seq.length;
     };
 

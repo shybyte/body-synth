@@ -15,15 +15,17 @@ var MidiInstrument = (function () {
             note, 
             velocity
         ]);
-        setTimeout(function () {
-            output.sendMessage([
-                0x90 + _this.channel, 
-                note, 
-                0
-            ]);
+        if(timeInMs > 0) {
             setTimeout(function () {
-            }, 1000);
-        }, timeInMs);
+                output.sendMessage([
+                    0x90 + _this.channel, 
+                    note, 
+                    0
+                ]);
+                setTimeout(function () {
+                }, 1000);
+            }, timeInMs);
+        }
     };
     MidiInstrument.prototype.stop = function (note) {
         output.sendMessage([
