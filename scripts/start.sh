@@ -1,4 +1,4 @@
 #!/bin/bash
 qjackctl -s &
-zynaddsubfx -l zyn/myzyn.xmz &
+zynaddsubfx -l zyn/amazon.xmz &
 nodemon server/server.js

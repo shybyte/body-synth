@@ -17,7 +17,7 @@ class Stick {
   private velocity:number;
   private currentNote:number;
   private currentShoulderNote:number;
-  private lastNote: number;
+  private lastNote:number;
   private inSequencerMode = false;
 
   constructor(private stickNumber:number, private instruments:number[], private baseNote:number, private scale:number[]) {
@@ -39,7 +39,7 @@ class Stick {
     if (this.velocity > 0.3) {
       var angle = y < 0 ? Math.acos(x / this.velocity) : Math.PI * 2 - Math.acos(x / this.velocity);
       var pos = Math.round((Math.PI * 5 - angle) % (Math.PI * 2) / (2 * Math.PI) * 8) % 8;
-      var note = this.baseNote + scale[pos];
+      var note = this.baseNote + this.scale[pos];
       if (note != this.currentNote) {
         stopNote(instrument, this.currentNote);
       }
@@ -76,11 +76,10 @@ class Stick {
     }
 
     var shoulderButtonBottom = gamepad.buttons[gamepadSupport.BUTTON.LEFT_SHOULDER_TOP + this.stickNumber + 2];
-    console.log(shoulderButtonBottom);
     socket.emit('changeSynthParameter', {
       instrument: instrument,
       parameter: 74,
-      value: 127-shoulderButtonBottom*120
+      value: 127 - shoulderButtonBottom * 120
     });
 
   }
@@ -94,56 +93,101 @@ function getDPadPos(gamepadButtons:number[]):number {
   return DPAD_POS_BY_BUTTONS[dpadButtons.join('')];
 }
 
+interface InstrumentPatch {
+  channel: number;
+  baseNote: number;
+  scale: number[];
+  sequence?: number[];
+  timePerStep?: number;
+}
+
 /**
  * 0 1 2 3 4 5 6 7 8 9 10 11 12
  * a b h c   d   e f   g     a
  */
-var scale = [0, 2, 3, 5, 7, 8, 10, 12 ];
-var scaleSolo = [0, 2, 3, 5, 7, 8, 10, 12];
+
+interface Patch {
+  name: string;
+  instruments: InstrumentPatch[];
+}
+
+var bass1:InstrumentPatch = {
+  channel: 1,
+  baseNote: 33,
+  scale: [0, 2, 3, 5, 7, 8, 10, 12 ]
+}
+
+var sequencer1:InstrumentPatch = {
+  channel: 1,
+  baseNote: 33,
+  scale: [0, 2, 3, 5, 7, 8, 10, 12 ],
+  sequence: [0, 12],
+  timePerStep: 500
+}
+
+var instrumentPatchViolinSolo = {
+  channel: 3,
+  baseNote: 69,
+  scale: [0, 2, 3, 5, 7, 8, 10, -1]
+}
+
+
+var sequencer2:InstrumentPatch = {
+  channel: 4,
+  baseNote: 33,
+  scale: [0, 2, 3, 5, 7, 8, 10, 12 ],
+  sequence: [0, 12, 23, 12],
+  timePerStep: 250
+}
+
+var instrumentPatchPadSolo = {
+  channel: 5,
+  baseNote: 69,
+  scale: [0, 2, 3, 5, 7, 8, 10, 11]
+}
+
+var patches:Patch[] = [
+  {name: 'Amazon', instruments: [bass1, sequencer1, instrumentPatchViolinSolo]},
+  {name: 'Test', instruments: [bass1, sequencer2, instrumentPatchPadSolo]}
+];
+
+var sticks:Stick[];
+
+function initWithPatch(patch:Patch) {
+  console.log('Load Patch ' + patch.name);
+
+  socket.emit('patch', patch);
+
+  var instruments = patch.instruments;
+  sticks = [
+    new Stick(0, [0, 1], instruments[0].baseNote, instruments[0].scale),
+    new Stick(1, [2], instruments[2].baseNote, instruments[2].scale)
+  ];
+
+}
+
+var currentPatchIndex = 0;
+initWithPatch(patches[currentPatchIndex]);
 
 var playSeq = false;
 var currentNote;
-var sticks = [new Stick(0, [0, 1], 33, scale), new Stick(1, [2], 69, scaleSolo)];
 
 function onGamepadInput(gamepad, gamepadID) {
-  var dpadPos = getDPadPos(gamepad.buttons);
-
-  if (gamepad.buttons[gamepadSupport.BUTTON.X]) {
-    if (playSeq) {
-      playSeq = false;
-      socket.emit('stop', {
-        instrument: 1
-      });
-    } else {
-      playSeq = true;
+  var dTop = gamepad.buttons[gamepadSupport.BUTTON.DPAD.TOP];
+  var dBottom = gamepad.buttons[gamepadSupport.BUTTON.DPAD.BOTTOM];
+  if (dTop || dBottom) {
+    if (dTop) {
+      currentPatchIndex = (currentPatchIndex + 1) % patches.length;
+    } else if (dBottom) {
+      currentPatchIndex = (patches.length + currentPatchIndex - 1) % patches.length;
     }
+    initWithPatch(patches[currentPatchIndex]);
   }
-
-  var inst = playSeq ? 1 : 0
-
-  if (dpadPos != null) {
-    currentNote = 33 + scale[dpadPos];
-    socket.emit('play', {
-      instrument: inst,
-      note: currentNote,
-      velocity: 60,
-      timeInMs: 400
-    });
+  else {
+    sticks[0].onInput(gamepad);
+    sticks[1].onInput(gamepad);
   }
-
-  if (!playSeq && currentNote && gamepad.buttons[gamepadSupport.BUTTON.LEFT_SHOULDER_TOP]) {
-    socket.emit('play', {
-      instrument: 0,
-      note: currentNote + 7,
-      velocity: 30,
-      timeInMs: 400
-    });
-  }
-
-  sticks[0].onInput(gamepad);
-  sticks[1].onInput(gamepad);
 }
-
 
 var tester = {
   updateGamepads: function (gamepads) {

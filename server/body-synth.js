@@ -11,32 +11,30 @@ var MidiInstrument = (function () {
         if (typeof timeInMs === "undefined") { timeInMs = 1000; }
         var _this = this;
         output.sendMessage([
-            0x90 + this.channel, 
+            0x90 + this.channel - 1, 
             note, 
             velocity
         ]);
         if(timeInMs > 0) {
             setTimeout(function () {
                 output.sendMessage([
-                    0x90 + _this.channel, 
+                    0x90 + _this.channel - 1, 
                     note, 
                     0
                 ]);
-                setTimeout(function () {
-                }, 1000);
             }, timeInMs);
         }
     };
     MidiInstrument.prototype.changeController = function (controller, value) {
         output.sendMessage([
-            0xB0 + this.channel, 
+            0xB0 + this.channel - 1, 
             controller, 
             value
         ]);
     };
     MidiInstrument.prototype.stop = function (note) {
         output.sendMessage([
-            0x90 + this.channel, 
+            0x90 + this.channel - 1, 
             note, 
             0
         ]);

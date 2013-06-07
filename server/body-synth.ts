@@ -17,23 +17,21 @@ export class MidiInstrument implements Instrument {
   }
 
   play(note:number, velocity?:number = 90, timeInMs?:number = 1000) {
-    output.sendMessage([0x90 + this.channel, note, velocity]);
+    output.sendMessage([0x90 + this.channel - 1, note, velocity]);
     //console.log('Play ' + note);
     if (timeInMs > 0) {
       setTimeout(() => {
-        output.sendMessage([0x90 + this.channel, note, 0]);
-        setTimeout(function () {
-        }, 1000);
+        output.sendMessage([0x90 + this.channel - 1, note, 0]);
       }, timeInMs);
     }
   }
 
   changeController(controller:number, value:number) {
-    output.sendMessage([0xB0 + this.channel, controller, value]);
+    output.sendMessage([0xB0 + this.channel - 1, controller, value]);
   }
 
   stop(note:number) {
-    output.sendMessage([0x90 + this.channel, note, 0]);
+    output.sendMessage([0x90 + this.channel - 1, note, 0]);
   }
 
 }
